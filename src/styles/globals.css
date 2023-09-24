@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.fc {
+  width: 80%;
+  height: 80%;
+
+}
