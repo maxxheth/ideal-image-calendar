@@ -1,28 +1,84 @@
-# Create T3 App
+# Ideal Image Calendar
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+## Overview
 
-## What's next? How do I make an app with this?
+Ideal Image Calendar is a modern, feature-rich calendar application built on the Bun runtime. It's designed to provide an intuitive and interactive experience for managing events, tasks, and schedules. The app is built using Next.js and leverages a variety of cutting-edge libraries to deliver a seamless user experience.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Version
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+Current version: 0.1.0
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Features
 
-## Learn More
+- Event management with various calendar views (Day Grid, Time Grid, List, etc.)
+- Interactive UI with drag-and-drop capabilities
+- Integration with Prisma for database operations
+- Authentication using Next-Auth
+- Real-time data fetching and state management with React Query and Jotai
+- Server-side logic with tRPC
+- Customizable UI with Tailwind CSS
+- Code quality ensured by ESLint and Prettier
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+## Installation
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+After cloning the repository, run the following commands to set up the project:
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+```bash
+# Install dependencies
+bun install
 
-## How do I deploy this?
+# Push Prisma schema to your database
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+bun db:push
+
+# Generate Prisma client
+bun postinstall
+
+# Start the development server
+bun dev
+```
+
+## Scripts
+
+- `build`: Build the Next.js application
+- `db:push`: Push the database schema using Prisma
+- `dev`: Start the development server
+- `postinstall`: Generate Prisma client after installation
+- `lint`: Lint the codebase using ESLint
+- `start`: Start the production server
+
+## Dependencies
+
+- Next.js
+- Prisma
+- FullCalendar
+- React Query
+- tRPC
+- Jotai
+- Nodemailer
+- React Spring
+- Zod
+- And many more...
+
+## Dev Dependencies
+
+- TypeScript
+- ESLint
+- Prettier
+- Tailwind CSS
+- ts-node
+- And more...
+
+## Runtime
+
+This app uses the [Bun runtime](https://bun.sh/).
+
+## Contributing
+
+Feel free to open issues and pull requests to improve the application.
+
+## License
+
+This project is set to private. Please refer to the team's guidelines for usage and contributions.
+
+For more details, please refer to the `package.json` file in the repository.
