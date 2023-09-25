@@ -32,7 +32,12 @@ bun install
 bun db:push
 
 # Generate Prisma client
+
 bun postinstall
+
+# Seed your database
+
+bun seed
 
 # Start the development server
 bun dev
