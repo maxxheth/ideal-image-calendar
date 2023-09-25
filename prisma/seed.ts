@@ -56,7 +56,8 @@ async function main() {
 
 main()
   .then((result) => {
-    console.log(result);
+    console.log("Seeding complete!");
+    console.log({ result });
   })
   .catch((e) => {
     throw e;
