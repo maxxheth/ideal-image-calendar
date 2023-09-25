@@ -17,7 +17,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ id }) => {
         className="z-1000 absolute left-1/2 top-1/2 flex h-screen min-h-screen w-screen -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center bg-white"
       >
         <p>Please sign in to access the dashboard.</p>
-        <button onClick={() => signIn()}>Sign In</button>
+        <button className="px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80" onClick={() => signIn()}>Sign In</button>
       </div>
     );
   }
@@ -34,7 +34,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ id }) => {
       </div>
 
       {/* Sign Out Button */}
-      <button onClick={() => signOut()}>Sign Out</button>
+      <button className="absolute right-4 top-4 px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80" onClick={() => signOut()}>Sign Out</button>
     </div>
   );
 };

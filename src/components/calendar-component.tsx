@@ -145,7 +145,7 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
   return (
     <div>
       <h1>Calendar</h1>
-      <div ref={calendarRef}></div>
+      <div style={{width: "87%"}} ref={calendarRef}></div>
       <NewItemModal
         showModal={localSelectedDate !== null && editingItem === null}
         onClose={handleNewItemModalClose}
