@@ -14,7 +14,9 @@ interface Item {
   title: string;
   date: string;
   calendarId: number;
-  id?: number; // Assuming the id might be optional
+  id?: number;
+  leadForecast: number;
+  leadActual: number;
 }
 
 interface FormData {
@@ -31,22 +33,25 @@ interface FormData {
 
 export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
   const calendarRef = useRef<HTMLDivElement>(null);
-  const [localSelectedDate, setLocalSelectedDate] = useState<string | null>(
-    null,
-  );
+  const [localSelectedDate, setLocalSelectedDate] = useState<string | null>(null);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [totalForecastLeads, setTotalForecastLeads] = useState<number>(0);
+  const [selectedItemInfo, setSelectedItemInfo] = useState<{ actual: number, forecast: number } | null>(null);
 
   const createItemMutation = api.item.createItem.useMutation();
   const getAllItemsQuery = api.item.getAllItems.useQuery({ enabled: true });
 
   useEffect(() => {
     if (getAllItemsQuery.data) {
-      setFilteredItems(
-        getAllItemsQuery.data.filter((item: Item) => item.calendarId === id),
-      );
+      setFilteredItems(getAllItemsQuery.data.filter((item: Item) => item.calendarId === id));
     }
   }, [getAllItemsQuery.data, id]);
+
+  useEffect(() => {
+    const total = filteredItems.reduce((acc, item) => acc + item.leadForecast, 0);
+    setTotalForecastLeads(total);
+  }, [filteredItems]);
 
   useEffect(() => {
     const calendarEl = calendarRef.current;
@@ -59,93 +64,75 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
         const date = new Date(item.date);
         date.setDate(date.getDate() + 1);
         return {
-          title: item.title,
+          title: `${item.title} (${item.leadForecast})`,
           start: date.toISOString(),
+          originalTitle: item.title,
         };
       }),
       dateClick: (arg) => {
-        console.log("date clicked!");
         const isoDateTime = `${arg.dateStr}T00:00:00.000Z`;
-
         setLocalSelectedDate(isoDateTime);
       },
       eventClick: (info) => {
         const clickedItem = filteredItems.find((item: Item) => {
           const eventDate = new Date(info.event.start.toISOString());
           const itemDate = new Date(item.date);
-
-          // Step 1: Parse itemDate
           const parsedItemDate = new Date(itemDate);
-
-          // Step 2: Parse eventDate
           const parsedEventDate = new Date(eventDate);
-
-          // Step 3: Calculate the difference in days
-          const diffInDays = Math.floor(
-            (parsedEventDate - parsedItemDate) / (1000 * 60 * 60 * 24),
-          );
-
-          // Decrement eventDate by the difference in days
+          const diffInDays = Math.floor((parsedEventDate - parsedItemDate) / (1000 * 60 * 60 * 24));
           parsedEventDate.setDate(parsedEventDate.getDate() - diffInDays);
-
-          // Convert the decremented eventDate back to a string if needed
-          const decrementedEventDateStr = parsedEventDate.toISOString();
-
-          // Convert both dates to midnight in UTC
           parsedEventDate.setUTCHours(0, 0, 0, 0);
           parsedItemDate.setUTCHours(0, 0, 0, 0);
+          const isTitleMatch = item.title === info.event.extendedProps.originalTitle;
+          const isDateMatch = parsedEventDate.getTime() === parsedItemDate.getTime();
 
-          const isTitleMatch = item.title === info.event.title;
-          const isDateMatch =
-            parsedEventDate.getTime() === parsedItemDate.getTime();
-
+          console.log({isTitleMatch, isDateMatch, parsedEventDateGetTime: parsedEventDate.getTime() , parsedItemDateGetTime: parsedItemDate.getTime(), parsedEventDate, parsedItemDate});
           return isTitleMatch && isDateMatch;
         });
-
+        console.log({clickedItem});
         if (clickedItem) {
-          console.log("Matched item:", clickedItem);
+          setSelectedItemInfo({ actual: clickedItem.leadActual, forecast: clickedItem.leadForecast });
         }
-
         setEditingItem(clickedItem);
         setLocalSelectedDate(info.event.start.toISOString());
       },
-
       eventClassNames: "cursor-pointer",
     });
 
     calendar.render();
-
     return () => {
       calendar.destroy();
     };
   }, [filteredItems]);
 
   const handleSubmit = async (formData: FormData) => {
-    try {
-      formData.date = new Date(localSelectedDate).toISOString();
-      const response = await createItemMutation.mutateAsync(formData);
-      if (response?.id) {
-        setFilteredItems([...filteredItems, response]);
-      }
-    } catch (error) {
-      console.error("Error creating item:", error);
+    formData.date = new Date(localSelectedDate).toISOString();
+    const response = await createItemMutation.mutateAsync(formData);
+    if (response?.id) {
+      setFilteredItems([...filteredItems, response]);
     }
   };
 
   const handleNewItemModalClose = () => {
     setLocalSelectedDate(null);
-    setEditingItem(null); // Close EditItemModal if it's open
+    setEditingItem(null);
   };
 
   const handleEditItemModalClose = () => {
     setEditingItem(null);
-    setLocalSelectedDate(null); // Close NewItemModal if it's open
+    setLocalSelectedDate(null);
   };
 
   return (
     <div>
       <h1>Calendar</h1>
-      <div style={{width: "87%"}} ref={calendarRef}></div>
+      <div style={{ width: "87%" }} ref={calendarRef}></div>
+      <div className="lead-info">
+        Total Forecast Leads: {totalForecastLeads}
+        {selectedItemInfo && (
+          <span> | Selected Item: Actual Leads: {selectedItemInfo.actual}, Forecast Leads: {selectedItemInfo.forecast}</span>
+        )}
+      </div>
       <NewItemModal
         showModal={localSelectedDate !== null && editingItem === null}
         onClose={handleNewItemModalClose}
@@ -159,6 +146,16 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
         existingItem={editingItem}
         handleSubmit={handleSubmit}
       />
+      <style jsx>{`
+        .lead-info {
+          width: 100%;
+          text-align: center;
+          background-color: #f2f2f2;
+          padding: 10px;
+          font-size: 16px;
+        }
+      `}</style>
     </div>
   );
 };
+

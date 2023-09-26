@@ -191,7 +191,7 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
                 </div>
                 <button
                   type="submit"
-                  className="border-primary-500 bg-primary-500 hover:border-primary-700 hover:bg-primary-700 focus:ring-primary-200 rounded-lg border px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all focus:ring"
+                  className="border-blue-500 bg-blue-500 hover:border-blue-700 hover:bg-blue-700 focus:ring-blue-200 rounded-lg border px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all focus:ring"
                 >
                   Add
                 </button>
