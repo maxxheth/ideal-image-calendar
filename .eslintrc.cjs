@@ -25,11 +25,13 @@ const config = {
         fixStyle: "inline-type-imports",
       },
     ],
-     "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/no-unsafe-call": "off",
-    "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unused-vars": "off", // This is for the 'e' is defined but never used warning
+    "@typescript-eslint/ban-ts-comment": "off",
     "prettier/prettier": "error",
   },
 };
