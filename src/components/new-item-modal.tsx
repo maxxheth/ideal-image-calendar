@@ -1,12 +1,36 @@
 import React, { useState } from "react";
 import { animated, useSpring } from "react-spring";
+import { type FormData } from "./calendar-component";
+import { type Status, type ChannelType } from "@prisma/client";
+import { type SetStateAction } from "jotai";
+
+// type FormDataType = {
+//   title: string;
+//   status: string;
+//   color: string;
+//   channelType: string;
+//   channelId: string;
+//   leadForecast: number;
+//   leadActual: number;
+//   calendarId: number;
+// };
+
+type existingItemType = {
+  id: number;
+  title: string;
+  status: string;
+  color: string;
+  channelType: string;
+  channelId: string;
+  leadForecast: number;
+  leadActual: number;
+};
 
 type NewItemModalProps = {
   showModal: boolean;
   onClose: () => void;
   calendarId: number;
-  handleSubmit: (formData: any) => void;
-  existingItem: any;
+  handleSubmit: (formData: FormData) => Promise<void>;
 };
 
 export const NewItemModal: React.FC<NewItemModalProps> = ({
@@ -14,12 +38,11 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
   onClose,
   calendarId,
   handleSubmit,
-  existingItem,
 }) => {
   const [title, setTitle] = useState("");
-  const [status, setStatus] = useState("PLANNED");
+  const [status, setStatus] = useState<Status>("PLANNED");
   const [color, setColor] = useState("#000000");
-  const [channelType, setChannelType] = useState("EMAIL");
+  const [channelType, setChannelType] = useState<ChannelType>("EMAIL");
   const [channelId, setChannelId] = useState("");
   const [leadForecast, setLeadForecast] = useState(0);
   const [leadActual, setLeadActual] = useState(0);
@@ -51,7 +74,7 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
   };
 
   return (
-    <animated.div style={fadeStyles}>
+    <animated.div style={fadeStyles as any}>
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
           <div className="mx-auto overflow-hidden rounded-lg bg-white shadow-xl sm:w-full sm:max-w-xl">
@@ -97,7 +120,9 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
                     id="status"
                     name="status"
                     value={status}
-                    onChange={(e) => setStatus(e.target.value)}
+                    onChange={(e) =>
+                      setStatus(e.target.value as SetStateAction<Status>)
+                    }
                     className="focus:border-primary-400 focus:ring-primary-200 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50"
                   >
                     <option value="PLANNED">Planned</option>
@@ -133,7 +158,11 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
                     id="channelType"
                     name="channelType"
                     value={channelType}
-                    onChange={(e) => setChannelType(e.target.value)}
+                    onChange={(e) =>
+                      setChannelType(
+                        e.target.value as SetStateAction<ChannelType>,
+                      )
+                    }
                     className="focus:border-primary-400 focus:ring-primary-200 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50"
                   >
                     <option value="EMAIL">Email</option>
@@ -165,7 +194,8 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
                     Lead Forecast
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    pattern="\d*"
                     id="leadForecast"
                     required
                     className="focus:border-primary-400 focus:ring-primary-200 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50"
@@ -181,7 +211,8 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
                     Lead Actual
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    pattern="\d*"
                     id="leadActual"
                     required
                     className="focus:border-primary-400 focus:ring-primary-200 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50"
@@ -191,7 +222,7 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
                 </div>
                 <button
                   type="submit"
-                  className="border-blue-500 bg-blue-500 hover:border-blue-700 hover:bg-blue-700 focus:ring-blue-200 rounded-lg border px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all focus:ring"
+                  className="rounded-lg border border-blue-500 bg-blue-500 px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all hover:border-blue-700 hover:bg-blue-700 focus:ring focus:ring-blue-200"
                 >
                   Add
                 </button>

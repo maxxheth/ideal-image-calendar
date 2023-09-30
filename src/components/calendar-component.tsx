@@ -5,51 +5,53 @@ import { api } from "~/utils/api";
 import { Calendar } from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import { type Item } from "@prisma/client";
 
 interface CalendarComponentProps {
   id: number;
 }
 
-interface Item {
+export interface FormData {
   title: string;
-  date: string;
-  calendarId: number;
-  id?: number;
-  leadForecast: number;
-  leadActual: number;
-}
-
-interface FormData {
-  title: string;
-  status: "PLANNED" | "BRIEFED" | "IN_PROGRESS" | "COMPLETED";
+  status: "PLANNED" | "BRIEFED" | "IN_PROGRESS" | "COMPLETE";
   color: string;
   channelType: "EMAIL" | "TEXT" | "OTHER";
   channelId: string;
   leadForecast: number;
   leadActual: number;
   calendarId: number;
-  date: string;
+  date?: string;
 }
 
 export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
   const calendarRef = useRef<HTMLDivElement>(null);
-  const [localSelectedDate, setLocalSelectedDate] = useState<string | null>(null);
+  const [localSelectedDate, setLocalSelectedDate] = useState<string | null>(
+    null,
+  );
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [totalForecastLeads, setTotalForecastLeads] = useState<number>(0);
-  const [selectedItemInfo, setSelectedItemInfo] = useState<{ actual: number, forecast: number } | null>(null);
+  const [selectedItemInfo, setSelectedItemInfo] = useState<{
+    actual: number;
+    forecast: number;
+  } | null>(null);
 
   const createItemMutation = api.item.createItem.useMutation();
-  const getAllItemsQuery = api.item.getAllItems.useQuery({ enabled: true });
+  const getAllItemsQuery = api.item.getAllItems.useQuery();
 
   useEffect(() => {
     if (getAllItemsQuery.data) {
-      setFilteredItems(getAllItemsQuery.data.filter((item: Item) => item.calendarId === id));
+      setFilteredItems(
+        getAllItemsQuery.data.filter((item: Item) => item.calendarId === id),
+      );
     }
   }, [getAllItemsQuery.data, id]);
 
   useEffect(() => {
-    const total = filteredItems.reduce((acc, item) => acc + item.leadForecast, 0);
+    const total = filteredItems.reduce(
+      (acc, item) => acc + item.leadForecast,
+      0,
+    );
     setTotalForecastLeads(total);
   }, [filteredItems]);
 
@@ -69,32 +71,55 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
           originalTitle: item.title,
         };
       }),
+      editable: true,
       dateClick: (arg) => {
         const isoDateTime = `${arg.dateStr}T00:00:00.000Z`;
         setLocalSelectedDate(isoDateTime);
       },
       eventClick: (info) => {
+        const { event } = info;
+
+        const eventStart = event.start;
+
+        if (!eventStart) return;
         const clickedItem = filteredItems.find((item: Item) => {
-          const eventDate = new Date(info.event.start.toISOString());
+          const eventDate = new Date(eventStart);
           const itemDate = new Date(item.date);
           const parsedItemDate = new Date(itemDate);
           const parsedEventDate = new Date(eventDate);
-          const diffInDays = Math.floor((parsedEventDate - parsedItemDate) / (1000 * 60 * 60 * 24));
+          const diffInDays = Math.floor(
+            (new Date(parsedEventDate).getTime() -
+              new Date(parsedItemDate).getTime()) /
+              (1000 * 60 * 60 * 24),
+          );
           parsedEventDate.setDate(parsedEventDate.getDate() - diffInDays);
           parsedEventDate.setUTCHours(0, 0, 0, 0);
           parsedItemDate.setUTCHours(0, 0, 0, 0);
-          const isTitleMatch = item.title === info.event.extendedProps.originalTitle;
-          const isDateMatch = parsedEventDate.getTime() === parsedItemDate.getTime();
+          const isTitleMatch =
+            item.title === info.event.extendedProps.originalTitle;
+          const isDateMatch =
+            parsedEventDate.getTime() === parsedItemDate.getTime();
 
-          console.log({isTitleMatch, isDateMatch, parsedEventDateGetTime: parsedEventDate.getTime() , parsedItemDateGetTime: parsedItemDate.getTime(), parsedEventDate, parsedItemDate});
+          console.log({
+            isTitleMatch,
+            isDateMatch,
+            parsedEventDateGetTime: parsedEventDate.getTime(),
+            parsedItemDateGetTime: parsedItemDate.getTime(),
+            parsedEventDate,
+            parsedItemDate,
+          });
           return isTitleMatch && isDateMatch;
         });
-        console.log({clickedItem});
+        console.log({ clickedItem });
         if (clickedItem) {
-          setSelectedItemInfo({ actual: clickedItem.leadActual, forecast: clickedItem.leadForecast });
+          setSelectedItemInfo({
+            actual: clickedItem.leadActual,
+            forecast: clickedItem.leadForecast,
+          });
         }
+        if (!clickedItem) return;
         setEditingItem(clickedItem);
-        setLocalSelectedDate(info.event.start.toISOString());
+        setLocalSelectedDate(eventStart.toISOString());
       },
       eventClassNames: "cursor-pointer",
     });
@@ -106,7 +131,9 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
   }, [filteredItems]);
 
   const handleSubmit = async (formData: FormData) => {
+    if (!localSelectedDate) return;
     formData.date = new Date(localSelectedDate).toISOString();
+    //@ts-ignore
     const response = await createItemMutation.mutateAsync(formData);
     if (response?.id) {
       setFilteredItems([...filteredItems, response]);
@@ -130,7 +157,11 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
       <div className="lead-info">
         Total Forecast Leads: {totalForecastLeads}
         {selectedItemInfo && (
-          <span> | Selected Item: Actual Leads: {selectedItemInfo.actual}, Forecast Leads: {selectedItemInfo.forecast}</span>
+          <span>
+            {" "}
+            | Selected Item: Actual Leads: {selectedItemInfo.actual}, Forecast
+            Leads: {selectedItemInfo.forecast}
+          </span>
         )}
       </div>
       <NewItemModal
@@ -143,6 +174,7 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
         showModal={editingItem !== null}
         onClose={handleEditItemModalClose}
         calendarId={id}
+        // @ts-ignore
         existingItem={editingItem}
         handleSubmit={handleSubmit}
       />
@@ -158,4 +190,3 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({ id }) => {
     </div>
   );
 };
-

@@ -1,10 +1,13 @@
 import React from "react";
 import { api } from "~/utils/api";
-import { type Item } from "@prisma/client"; // Import the Item type
+import { type Item, type Calendar } from "@prisma/client"; // Import the Item type
 
 type CalendarCardProps = {
   id: number;
 };
+
+type CalendarWithItems = Calendar & { items: Item[] };
+// Add a property to a type
 
 export const CalendarCard: React.FC<CalendarCardProps> = ({ id }) => {
   // Fetch the calendar by its ID
@@ -18,7 +21,7 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({ id }) => {
     return <div>Error loading calendar</div>;
   }
 
-  const calendar = calendarQuery.data;
+  const calendar = calendarQuery.data as CalendarWithItems;
 
   return (
     <div className="mx-auto max-w-md rounded-lg bg-white shadow">
@@ -30,11 +33,15 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({ id }) => {
           </p>
           <p>
             <strong>Created At:</strong>{" "}
-            {new Date(calendar?.created).toLocaleDateString()}
+            {calendar?.created
+              ? new Date(calendar.created).toLocaleDateString()
+              : "N/A"}
           </p>
           <p>
             <strong>Updated At:</strong>{" "}
-            {new Date(calendar?.updated).toLocaleDateString()}
+            {calendar?.updated
+              ? new Date(calendar?.updated).toLocaleDateString()
+              : "N/A"}
           </p>
           <p>
             <strong>User ID:</strong> {calendar?.userId}

@@ -37,7 +37,7 @@ model Item {
   date        DateTime
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  reports     Report[]
+  reports     Report[]  
   calendar    Calendar   @relation(fields: [calendarId], references: [id]) // Add this relation
 }
 
@@ -45,7 +45,7 @@ model Calendar {
   id       Int      @id @default(autoincrement())
   userId   String
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items    Item[]   // Remove references: [id]
+  items    Item[]   
   created  DateTime @default(now())
   updated  DateTime @updatedAt
   url      String

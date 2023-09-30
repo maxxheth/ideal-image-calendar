@@ -1,7 +1,7 @@
 import React from "react";
 import { api } from "~/utils/api";
-import Sidebar from "./Sidebar";
-import CalendarCard from "./CalendarCard"; // Make sure to import the refactored CalendarCard component
+import { Sidebar } from "./sidebar";
+import { CalendarCard } from "./calendar-card"; // Make sure to import the refactored CalendarCard component
 
 const Dashboard: React.FC = () => {
   // Fetch all calendars

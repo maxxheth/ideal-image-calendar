@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { animated, useSpring } from "react-spring";
-import { api, RouterInputs } from "~/utils/api";
-import { useAtom } from "jotai";
+import { type FormData } from "./calendar-component";
+
+type existingItemType = {
+  id: number;
+  title: string;
+  status: string;
+  color: string;
+  channelType: string;
+  channelId: string;
+  leadForecast: number;
+  leadActual: number;
+};
 
 type EditItemModalProps = {
   showModal: boolean;
   onClose: () => void;
   calendarId: number;
-  existingItem: any;
-  handleSubmit: (formData: any) => void;
+  existingItem: existingItemType;
+  handleSubmit: (formData: FormData) => void;
 };
 
 export const EditItemModal: React.FC<EditItemModalProps> = ({
@@ -61,10 +71,12 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
 
   const formSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = {
+    const formData: FormData = {
       title,
+      //@ts-ignore
       status,
       color,
+      //@ts-ignore
       channelType,
       channelId,
       leadForecast,
@@ -76,7 +88,7 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
   };
 
   return (
-    <animated.div style={fadeStyles}>
+    <animated.div style={fadeStyles as any}>
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
           <div className="mx-auto overflow-hidden rounded-lg bg-white shadow-xl sm:w-full sm:max-w-xl">
@@ -214,9 +226,9 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
                 </div>
                 <button
                   type="submit"
-                  className="border-blue-500 bg-blue-500 hover:border-primary-700 hover:bg-primary-700 focus:ring-primary-200 rounded-lg border px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all focus:ring"
+                  className="hover:border-primary-700 hover:bg-primary-700 focus:ring-primary-200 rounded-lg border border-blue-500 bg-blue-500 px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all focus:ring"
                 >
-                  Add
+                  Save
                 </button>
               </form>
             </div>
